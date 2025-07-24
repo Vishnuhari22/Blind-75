@@ -119,3 +119,48 @@ class Solution:
   * **Space Complexity**: $O(1)$, as we only use a few variables (`l`, `r`, `maxP`) to store state.
 
 -----
+
+Here is the explanation in a GitHub README format.
+
+-----
+
+## 217\. Contains Duplicate
+
+[Problem Link](https://leetcode.com/problems/contains-duplicate/)
+
+### Intuition & Approach
+
+The problem asks us to determine if any element in an array appears more than once. The most efficient way to solve this is by using a data structure that allows for fast lookups. A **hash set** is perfect for this task.
+
+The logic is straightforward:
+
+1.  Initialize an empty **hash set** to keep track of the numbers we have seen so far.
+2.  Iterate through each number in the input array `nums`.
+3.  For each number, check if it's already present in the hash set.
+      * If it is, we've found a duplicate\! We can immediately stop and return `True`.
+      * If it's not in the set, we add it so we can check against it later.
+4.  If the loop completes without finding any duplicates, it means every element was unique. We can then return `False`.
+
+This approach is efficient because adding an element to a hash set and checking for its existence are, on average, $O(1)$ operations.
+
+### Code
+
+```python
+class Solution:
+    def containsDuplicate(self, nums: List[int]) -> bool:
+        hashset = set()
+        
+        for n in nums:
+            if n in hashset:
+                return True
+            hashset.add(n)
+            
+        return False
+```
+
+### Complexity Analysis
+
+  * **Time Complexity**: $O(n)$, where `n` is the number of elements in `nums`. We iterate through the array once, and each hash set operation takes constant time on average.
+  * **Space Complexity**: $O(n)$, because in the worst case (where there are no duplicates), the hash set will store all `n` elements from the input array.
+
+-----
