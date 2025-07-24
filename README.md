@@ -53,7 +53,6 @@ class Solution:
     In the worst-case scenario, we might have to store all $n$ elements in the hash map `seen` before finding the pair.
 
 
-Here is the explanation in a GitHub README format, perfect for a collection of LeetCode solutions.
 
 -----
 
@@ -120,9 +119,6 @@ class Solution:
 
 -----
 
-Here is the explanation in a GitHub README format.
-
------
 
 ## 217\. Contains Duplicate
 
