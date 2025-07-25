@@ -159,4 +159,78 @@ class Solution:
   * **Time Complexity**: $O(n)$, where `n` is the number of elements in `nums`. We iterate through the array once, and each hash set operation takes constant time on average.
   * **Space Complexity**: $O(n)$, because in the worst case (where there are no duplicates), the hash set will store all `n` elements from the input array.
 
+
+-----
+
+## 238\. Product of Array Except Self
+
+[Problem Link](https://leetcode.com/problems/product-of-array-except-self/)
+
+### Intuition & Approach
+
+The challenge is to compute the product of all elements in an array *except* for the element at the current index, and to do so **without using division**.
+
+The key insight is that the result for any given index `i` is the product of two values:
+
+1.  The product of all numbers **to the left** of `i` (prefix product).
+2.  The product of all numbers **to the right** of `i` (postfix product).
+
+We can solve this efficiently in two passes:
+
+  * **Pass 1 (Left to Right):** We iterate through the array from the beginning. For each position `i`, we first place the product of all elements to its left into our `result` array. We maintain a `prefix` variable that accumulates this product as we go.
+
+  * **Pass 2 (Right to Left):** We iterate through the array from the end. This time, we maintain a `postfix` variable for the product of elements to the right. For each position `i`, we multiply the existing value in `result[i]` (which is already the prefix product) by the current `postfix` product. This gives us the final desired result.
+
+This two-pass approach calculates the products in $O(n)$ time and satisfies the $O(1)$ extra space constraint, as the output array is not counted towards space complexity.
+
+### Walkthrough
+
+Let's trace `nums = [1, 2, 3, 4]`:
+
+1.  **Initialize `result`**: `result = [1, 1, 1, 1]`
+
+2.  **First Pass (Prefix Calculation)**:
+
+      * `i = 0`: `result[0] = 1`. `prefix` becomes `1 * 1 = 1`. `result` is `[1, 1, 1, 1]`.
+      * `i = 1`: `result[1] = 1`. `prefix` becomes `1 * 2 = 2`. `result` is `[1, 1, 1, 1]`.
+      * `i = 2`: `result[2] = 2`. `prefix` becomes `2 * 3 = 6`. `result` is `[1, 1, 2, 1]`.
+      * `i = 3`: `result[3] = 6`. `prefix` becomes `6 * 4 = 24`. `result` is `[1, 1, 2, 6]`.
+      * After the first pass, `result[i]` holds the product of elements to its left.
+
+3.  **Second Pass (Postfix Calculation)**:
+
+      * `i = 3`: `result[3] *= 1` (initial `postfix`). `result[3]` is `6`. `postfix` becomes `1 * 4 = 4`. `result` is `[1, 1, 2, 6]`.
+      * `i = 2`: `result[2] *= 4`. `result[2]` is `2 * 4 = 8`. `postfix` becomes `4 * 3 = 12`. `result` is `[1, 1, 8, 6]`.
+      * `i = 1`: `result[1] *= 12`. `result[1]` is `1 * 12 = 12`. `postfix` becomes `12 * 2 = 24`. `result` is `[1, 12, 8, 6]`.
+      * `i = 0`: `result[0] *= 24`. `result[0]` is `1 * 24 = 24`. `postfix` becomes `24 * 1 = 24`. `result` is `[24, 12, 8, 6]`.
+
+The final `result` is `[24, 12, 8, 6]`.
+
+### Code
+
+```python
+class Solution:
+    def productExceptSelf(self, nums: List[int]) -> List[int]:
+        result = [1] * len(nums)
+        
+        # First pass: Calculate prefix products
+        prefix = 1
+        for i in range(len(nums)):
+            result[i] = prefix
+            prefix *= nums[i]
+            
+        # Second pass: Calculate postfix products and multiply
+        postfix = 1
+        for i in range(len(nums) - 1, -1, -1):
+            result[i] *= postfix
+            postfix *= nums[i]
+            
+        return result
+```
+
+### Complexity Analysis
+
+  * **Time Complexity**: $O(n)$, since we iterate through the array twice, which simplifies from $O(2n)$ to $O(n)$.
+  * **Space Complexity**: $O(1)$, because we don't use any extra space other than the output array, as per the problem's constraints.
+
 -----
