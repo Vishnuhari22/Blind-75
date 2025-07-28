@@ -234,3 +234,70 @@ class Solution:
   * **Space Complexity**: $O(1)$, because we don't use any extra space other than the output array, as per the problem's constraints.
 
 -----
+
+## 53\. Maximum Subarray
+
+[Problem Link](https://leetcode.com/problems/maximum-subarray/)
+
+### Intuition & Approach
+
+This problem asks for the largest sum of any contiguous subarray within a given array. The classic and most efficient solution for this is **Kadane's Algorithm**.
+
+The core idea is to iterate through the array, keeping track of the sum of the current subarray. The crucial insight is that if the sum of the current subarray (`curSum`) ever becomes negative, it's better to discard it and start a new subarray from the next element. A negative-sum subarray will only decrease the sum of any future elements added to it.
+
+1.  **Initialization**: We need two variables:
+
+      * `maxSub`: To store the maximum subarray sum found so far. We initialize it with the first element of the array to handle cases where all numbers are negative.
+      * `curSum`: The sum of the current subarray we are considering. We initialize it to `0`.
+
+2.  **Iteration**: We loop through each number `n` in the array.
+
+      * **Check for Negative Sum**: Before adding the new number, we check if `curSum` is negative. If it is, we reset `curSum` to `0`. This is the "discard" step.
+      * **Add Current Element**: We add the current number `n` to `curSum`.
+      * **Update Maximum**: We compare the `curSum` with `maxSub` and update `maxSub` if the current sum is larger.
+
+By the end of the loop, `maxSub` will hold the largest sum found among all possible contiguous subarrays.
+
+### Walkthrough
+
+Let's trace `nums = [-2, 1, -3, 4, -1, 2, 1, -5, 4]`:
+
+| `n` | `curSum` (start) | Action (`if curSum < 0`) | `curSum` (after `+= n`) | `maxSub` |
+| :---: | :---: | :--- | :---: | :---: |
+| | | | | `-2` |
+| `-2`| `0` | - | `-2` | `-2` (max(-2,-2)) |
+| `1` | `-2`| `curSum = 0` | `1` | `1` (max(-2,1)) |
+| `-3`| `1` | - | `-2` | `1` (max(1,-2)) |
+| `4` | `-2`| `curSum = 0` | `4` | `4` (max(1,4)) |
+| `-1`| `4` | - | `3` | `4` (max(4,3)) |
+| `2` | `3` | - | `5` | `5` (max(4,5)) |
+| `1` | `5` | - | `6` | `6` (max(5,6)) |
+| `-5`| `6` | - | `1` | `6` (max(6,1)) |
+| `4` | `1` | - | `5` | `6` (max(6,5)) |
+
+The final returned profit is **6** (from the subarray `[4, -1, 2, 1]`).
+
+### Code
+
+```python
+class Solution:
+    def maxSubArray(self, nums: List[int]) -> int:
+        maxSub = nums[0]
+        curSum = 0
+
+        for n in nums:
+            # If the current sum is negative, it's better to start a new subarray
+            if curSum < 0:
+                curSum = 0
+            curSum += n
+            maxSub = max(maxSub, curSum)
+            
+        return maxSub
+```
+
+### Complexity Analysis
+
+  * **Time Complexity**: $O(n)$, since we perform a single pass through the array.
+  * **Space Complexity**: $O(1)$, as we only use a constant amount of extra space for the variables `maxSub` and `curSum`.
+
+-----
