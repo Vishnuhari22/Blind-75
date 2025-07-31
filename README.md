@@ -301,3 +301,99 @@ class Solution:
   * **Space Complexity**: $O(1)$, as we only use a constant amount of extra space for the variables `maxSub` and `curSum`.
 
 -----
+
+## 152\. Maximum Product Subarray
+
+[Problem Link](https://leetcode.com/problems/maximum-product-subarray/)
+
+### Intuition & Approach
+
+This problem is an extension of the "Maximum Sum Subarray" problem, with a key twist: **negative numbers**. A large negative product can become a large positive product if multiplied by another negative number.
+
+Because of this, we can't just track the maximum product. We need to track both the **maximum product** (`curMax`) and the **minimum product** (`curMin`) for a subarray ending at the current position.
+
+The logic at each step `n` in the array is:
+
+1.  The new maximum product ending here could be `n`, `n` times the previous `curMax`, or `n` times the previous `curMin` (in case `n` and `curMin` are both negative).
+2.  Similarly, the new minimum product could be `n`, `n` times the previous `curMax` (if `n` is negative), or `n` times the previous `curMin`.
+3.  If `n` is **zero**, it breaks any subarray product. We reset `curMin` and `curMax` to `1` and continue from the next element.
+
+We maintain a global `result` variable that is updated whenever `curMax` exceeds its current value.
+
+### Walkthrough
+
+Let's trace the corrected algorithm with `nums = [2, 3, -2, 4]`:
+
+  * Initialize: `res = 4`, `curMin = 1`, `curMax = 1`
+
+| `n` | `temp` (`curMax*n`) | `new_curMax` (max) | `new_curMin` (min) | `res` (max) |
+| :--: | :--: | :--- | :--- | :--- |
+| | | `max(n, n*curMax, n*curMin)` | `min(temp, n*curMin, n)` | `max(res, new_curMax)` |
+| `2` | `2` | `max(2, 2, 2) = 2` | `min(2, 2, 2) = 2` | `max(4, 2) = 4` |
+| `3` | `6` | `max(3, 6, 6) = 6` | `min(6, 6, 3) = 3` | `max(4, 6) = 6` |
+| `-2`| `-12`| `max(-2, -12, -6) = -2` | `min(-12, -6, -2) = -12`| `max(6, -2) = 6` |
+| `4` | `-8` | `max(4, -8, -48) = 4` | `min(-8, -48, 4) = -48`| `max(6, 4) = 6` |
+
+*Note*: The logic seems to fail in the walkthrough. Let's re-examine the code. Ah, the logic for `curMax` and `curMin` is slightly different.
+
+Let's re-trace with the **correct** logic from the code:
+
+  * `curMax = max(n*curMax, n*curMin, n)`
+  * `curMin = min(tmp, n*curMin, n)` where `tmp = old_curMax * n`
+
+Initialize: `res = 4`, `curMin = 1`, `curMax = 1`
+
+| `n` | `old_curMax` | `old_curMin` | `tmp = n*old_curMax` | `curMax` | `curMin` | `res` |
+| :--: | :--: | :--: | :---: | :---: | :---: | :--: |
+| `2` | `1` | `1` | `2` | `max(2,2,2) = 2` | `min(2,2,2) = 2` | `max(4,2) = 4` |
+| `3` | `2` | `2` | `6` | `max(6,6,3) = 6` | `min(6,6,3) = 3` | `max(4,6) = 6` |
+| `-2`| `6` | `3` | `-12`|`max(-12,-6,-2) = -2`|`min(-12,-6,-2) = -12`|`max(6,-2) = 6`|
+| `4` | `-2`|`-12`| `-8` |`max(-8,-48,4) = 4`|`min(-8,-48,4) = -48`|`max(6,4) = 6` |
+
+The result for `[2, 3]` is `6`. The walkthrough seems correct but the example might be tricky. Let's try `nums = [-2, 3, -4]`.
+Initialize `res = 3`, `curMin = 1`, `curMax = 1`.
+
+| `n` | `old_curMax` | `old_curMin` | `tmp = n*old_curMax` | `curMax` | `curMin` | `res` |
+| :--: | :--: | :--: | :---: | :---: | :---: | :--: |
+| `-2` | `1` | `1` | `-2` | `max(-2,-2,-2)=-2` | `min(-2,-2,-2)=-2` | `max(3,-2)=3` |
+| `3` | `-2`|`-2`| `-6` |`max(-6,-6,3)=3`| `min(-6,-6,3)=-6`| `max(3,3)=3` |
+| `-4`| `3` |`-6`| `-12`|`max(-12,24,-4)=24`|`min(-12,24,-4)=-12`|`max(3,24)=24`|
+
+Final result is `24`. This works.
+
+```
+class Solution:
+    def maxProduct(self, nums: List[int]) -> int:
+        if not nums:
+            return 0
+        
+        # Initialize result with the max of the array to handle all-negative cases
+        res = max(nums) 
+        curMin, curMax = 1, 1
+
+        for n in nums:
+            # If n is 0, the chain is broken. Reset and continue.
+            if n == 0:
+                curMin, curMax = 1, 1
+                continue
+            
+            # Store curMax * n before updating curMax
+            tmp = curMax * n
+            
+            # The new max is the max of n, n*curMax, or n*curMin (for two negatives)
+            curMax = max(n * curMax, n * curMin, n)
+            
+            # The new min uses the stored temp value
+            curMin = min(tmp, n * curMin, n)
+            
+            res = max(res, curMax)
+            
+        return res
+```
+
+### Complexity Analysis
+
+  * **Time Complexity**: $O(n)$, as we iterate through the `nums` array only once.
+  * **Space Complexity**: $O(1)$, because we only use a few constant variables to store state.
+
+-----
